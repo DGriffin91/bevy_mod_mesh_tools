@@ -17,7 +17,7 @@ use thiserror::Error;
 pub fn mesh_len(mesh: &Mesh) -> usize {
     match mesh.attribute(Mesh::ATTRIBUTE_POSITION) {
         Some(VertexAttributeValues::Float32x3(positions)) => positions.len(),
-        _ => return 0,
+        _ => 0,
     }
 }
 
@@ -73,6 +73,24 @@ pub fn mesh_normals_mut(mesh: &mut Mesh) -> IterMut<Vec3> {
     }
 }
 
+pub fn mesh_tangents(mesh: &Mesh) -> Iter<Vec4> {
+    match mesh.attribute(Mesh::ATTRIBUTE_TANGENT) {
+        Some(VertexAttributeValues::Float32x4(v)) => unsafe {
+            std::mem::transmute::<Iter<[f32; 4]>, Iter<Vec4>>(v.iter())
+        },
+        _ => [].iter(),
+    }
+}
+
+pub fn mesh_tangents_mut(mesh: &mut Mesh) -> IterMut<Vec4> {
+    match mesh.attribute_mut(Mesh::ATTRIBUTE_TANGENT) {
+        Some(VertexAttributeValues::Float32x4(v)) => unsafe {
+            std::mem::transmute::<IterMut<[f32; 4]>, IterMut<Vec4>>(v.iter_mut())
+        },
+        _ => [].iter_mut(),
+    }
+}
+
 pub fn mesh_uvs(mesh: &Mesh) -> Iter<Vec2> {
     match mesh.attribute(Mesh::ATTRIBUTE_UV_0) {
         Some(VertexAttributeValues::Float32x2(v)) => unsafe {
@@ -94,10 +112,10 @@ pub fn mesh_uvs_mut(mesh: &mut Mesh) -> IterMut<Vec2> {
 pub fn mesh_with_transform(mesh: &Mesh, transform: &Transform) -> Option<Mesh> {
     let mut mesh = mesh.clone();
 
-    let mat = transform.compute_matrix();
+    let model = transform.compute_matrix();
 
     for p in mesh_positions_mut(&mut mesh) {
-        *p = mat.transform_point3(*p);
+        *p = model.transform_point3(*p);
     }
 
     // Comment below taken from mesh_normal_local_to_world() in mesh_functions.wgsl regarding
@@ -110,17 +128,34 @@ pub fn mesh_with_transform(mesh: &Mesh, transform: &Transform) -> Option<Mesh> {
     // unless you really know what you are doing.
     // http://www.mikktspace.com/
 
-    let inverse_transpose_model = mat.inverse().transpose();
-    let inverse_transpose_model = Mat3 {
-        x_axis: inverse_transpose_model.x_axis.xyz(),
-        y_axis: inverse_transpose_model.y_axis.xyz(),
-        z_axis: inverse_transpose_model.z_axis.xyz(),
-    };
+    let inverse_transpose_model = Mat3::from_mat4(model.inverse().transpose());
+
     for n in mesh_normals_mut(&mut mesh) {
-        *n = inverse_transpose_model
-            .mul_vec3(*n)
+        *n = inverse_transpose_model.mul_vec3(*n).normalize_or_zero();
+    }
+
+    // Comment below taken from mesh_tangent_local_to_world() in mesh_functions.wgsl regarding
+    // transform normals from local to world coordinates:
+
+    // NOTE: The mikktspace method of normal mapping requires that the world tangent is
+    // re-normalized in the vertex shader to match the way mikktspace bakes vertex tangents
+    // and normal maps so that the exact inverse process is applied when shading. Blender, Unity,
+    // Unreal Engine, Godot, and more all use the mikktspace method. Do not change this code
+    // unless you really know what you are doing.
+    // http://www.mikktspace.com/
+
+    let model = Mat3::from_mat4(model);
+
+    let sign_determinant_positive = model.determinant().is_sign_positive();
+
+    for tangent in mesh_tangents_mut(&mut mesh) {
+        *tangent = model
+            .mul_vec3(tangent.xyz())
             .normalize_or_zero()
-            .into();
+            .extend(tangent.w);
+        if !sign_determinant_positive {
+            tangent.w *= -1.0;
+        }
     }
 
     Some(mesh)
@@ -164,7 +199,7 @@ pub fn mesh_with_skinned_transform(
 
     // get skinned mesh joint models
     if let Some(joints) = skinned_mesh_joints(skinned_mesh, inverse_bindposes, joint_query) {
-        let mut models = Vec::with_capacity(mesh_len(&mesh));
+        let mut models = Vec::with_capacity(mesh_len(mesh));
         // Use skin model to get world space vertex positions
         for ((pos, indices), weights) in mesh_positions_mut(&mut new_mesh)
             .zip(mesh_joint_indices(mesh))
@@ -172,7 +207,7 @@ pub fn mesh_with_skinned_transform(
         {
             let model = skin_model(&joints, indices, weights);
             *pos = model.transform_point3(*pos);
-            models.push(model);
+            models.push(Mat3::from_mat4(model));
         }
 
         // Comment below taken from mesh_normal_local_to_world() in mesh_functions.wgsl regarding
@@ -185,17 +220,34 @@ pub fn mesh_with_skinned_transform(
         // unless you really know what you are doing.
         // http://www.mikktspace.com/
 
-        for (normal, model) in mesh_normals_mut(&mut new_mesh).zip(models) {
+        for (normal, model) in mesh_normals_mut(&mut new_mesh).zip(&models) {
             let inverse_transpose_model = model.inverse().transpose();
-            let inverse_transpose_model = Mat3 {
-                x_axis: inverse_transpose_model.x_axis.xyz(),
-                y_axis: inverse_transpose_model.y_axis.xyz(),
-                z_axis: inverse_transpose_model.z_axis.xyz(),
-            };
             *normal = inverse_transpose_model
                 .mul_vec3(*normal)
+                .normalize_or_zero();
+        }
+
+        // Comment below taken from mesh_tangent_local_to_world() in mesh_functions.wgsl regarding
+        // transform normals from local to world coordinates:
+
+        // NOTE: The mikktspace method of normal mapping requires that the world tangent is
+        // re-normalized in the vertex shader to match the way mikktspace bakes vertex tangents
+        // and normal maps so that the exact inverse process is applied when shading. Blender, Unity,
+        // Unreal Engine, Godot, and more all use the mikktspace method. Do not change this code
+        // unless you really know what you are doing.
+        // http://www.mikktspace.com/
+        for (tangent, model) in mesh_tangents_mut(&mut new_mesh).zip(&models) {
+            *tangent = model
+                .mul_vec3(tangent.xyz())
                 .normalize_or_zero()
-                .into();
+                .extend(tangent.w);
+
+            // TODO does the transform need to be included to do this?
+            // NOTE: Multiplying by the sign of the determinant of the 3x3 model matrix accounts for
+            // situations such as negative scaling.
+            //if !Mat3A::from_mat4(transform).determinant().is_sign_positive() {
+            //    tangent.w *= -1.0;
+            //}
         }
     }
 
