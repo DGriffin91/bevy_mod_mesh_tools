@@ -1,5 +1,7 @@
 # bevy_mod_mesh_tools
 
+Use with bevy 0.9.
+
 ## Compute the Aabb of a skinned mesh
 
 ![animation](animation.gif)
