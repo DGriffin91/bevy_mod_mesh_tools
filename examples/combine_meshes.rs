@@ -5,17 +5,13 @@ use std::f32::consts::PI;
 
 use bevy::{
     prelude::*,
-    render::{
-        render_resource::{Extent3d, TextureDimension, TextureFormat},
-        texture::ImageSettings,
-    },
+    render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
 use bevy_mod_mesh_tools::{mesh_append, mesh_empty_default, mesh_with_transform};
 
 fn main() {
     App::new()
-        .insert_resource(ImageSettings::default_nearest())
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_startup_system(setup)
         .run();
 }
@@ -55,13 +51,13 @@ fn setup(
         mesh_append(&mut combined_mesh, &mesh).unwrap();
     }
 
-    commands.spawn_bundle(PbrBundle {
+    commands.spawn(PbrBundle {
         mesh: meshes.add(combined_mesh),
         material: debug_material,
         ..default()
     });
 
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         point_light: PointLight {
             intensity: 9000.0,
             range: 100.,
@@ -73,13 +69,13 @@ fn setup(
     });
 
     // ground plane
-    commands.spawn_bundle(PbrBundle {
+    commands.spawn(PbrBundle {
         mesh: meshes.add(shape::Plane { size: 50. }.into()),
         material: materials.add(Color::SILVER.into()),
         ..default()
     });
 
-    commands.spawn_bundle(Camera3dBundle {
+    commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(0.0, 6., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
         ..default()
     });
