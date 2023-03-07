@@ -34,7 +34,7 @@ fn setup(
         shape::Box::default().into(),
         shape::Capsule::default().into(),
         shape::Torus::default().into(),
-        shape::Icosphere::default().into(),
+        shape::Icosphere::default().try_into().unwrap(),
         shape::UVSphere::default().into(),
     ];
 
@@ -70,7 +70,13 @@ fn setup(
 
     // ground plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(shape::Plane { size: 50. }.into()),
+        mesh: meshes.add(
+            shape::Plane {
+                size: 50.,
+                subdivisions: 0,
+            }
+            .into(),
+        ),
         material: materials.add(Color::SILVER.into()),
         ..default()
     });
