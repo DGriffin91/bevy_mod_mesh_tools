@@ -15,11 +15,9 @@ use bevy_mod_mesh_tools::{mesh_positions, mesh_with_skinned_transform};
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_plugin(WireframePlugin)
-        .add_startup_system(setup)
-        .add_system(joint_animation)
-        .add_system(skinned_vertex_locations)
+        .add_plugins((DefaultPlugins, WireframePlugin))
+        .add_systems(Startup, setup)
+        .add_systems(Update, (joint_animation, skinned_vertex_locations))
         .run();
 }
 

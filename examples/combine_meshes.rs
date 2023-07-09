@@ -12,7 +12,7 @@ use bevy_mod_mesh_tools::{mesh_append, mesh_empty_default, mesh_with_transform};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_startup_system(setup)
+        .add_systems(Startup, setup)
         .run();
 }
 

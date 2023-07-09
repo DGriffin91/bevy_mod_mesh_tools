@@ -1,6 +1,6 @@
 # bevy_mod_mesh_tools
 
-Use with bevy 0.10.
+Use with bevy 0.11.
 
 ## Compute the Aabb of a skinned mesh
 
@@ -37,7 +37,7 @@ fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
+        .add_systems(Startup, setup)
         .run();
 }
 ```

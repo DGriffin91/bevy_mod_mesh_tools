@@ -2,7 +2,7 @@
 
 use bevy::{
     prelude::*,
-    reflect::TypeUuid,
+    reflect::{TypePath, TypeUuid},
     render::render_resource::{AsBindGroup, ShaderRef},
 };
 use bevy_mod_mesh_tools::{mesh_append, mesh_with_transform};
@@ -78,15 +78,17 @@ impl Material for DebugNormalsMaterial {
     }
 }
 
-#[derive(AsBindGroup, Debug, Clone, TypeUuid)]
+#[derive(AsBindGroup, Debug, Clone, TypeUuid, TypePath)]
 #[uuid = "717f64fe-6844-4821-8926-e0ed374294c9"]
 pub struct DebugNormalsMaterial {}
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_plugin(MaterialPlugin::<DebugNormalsMaterial>::default())
-        .add_startup_system(setup)
-        .add_system(rotate)
+        .add_plugins((
+            DefaultPlugins,
+            MaterialPlugin::<DebugNormalsMaterial>::default(),
+        ))
+        .add_systems(Startup, setup)
+        .add_systems(Update, rotate)
         .run();
 }
