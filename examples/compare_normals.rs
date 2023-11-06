@@ -2,7 +2,7 @@
 
 use bevy::{
     prelude::*,
-    reflect::{TypePath, TypeUuid},
+    reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
 };
 use bevy_mod_mesh_tools::{mesh_append, mesh_with_transform};
@@ -62,7 +62,7 @@ fn rotate(
     for (mesh_h, mut m) in &mut mesh_update {
         m.transform.rotate_x(r1);
         m.transform.rotate_z(r2);
-        if let Some(mesh) = meshes.get_mut(&mesh_h) {
+        if let Some(mesh) = meshes.get_mut(&*mesh_h) {
             *mesh = mesh_with_transform(&m.mesh, &m.transform).unwrap();
         }
     }
@@ -78,8 +78,7 @@ impl Material for DebugNormalsMaterial {
     }
 }
 
-#[derive(AsBindGroup, Debug, Clone, TypeUuid, TypePath)]
-#[uuid = "717f64fe-6844-4821-8926-e0ed374294c9"]
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct DebugNormalsMaterial {}
 
 fn main() {
