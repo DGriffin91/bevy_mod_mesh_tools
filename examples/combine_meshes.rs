@@ -5,7 +5,10 @@ use std::f32::consts::PI;
 
 use bevy::{
     prelude::*,
-    render::render_resource::{Extent3d, TextureDimension, TextureFormat},
+    render::{
+        render_asset::RenderAssetUsages,
+        render_resource::{Extent3d, TextureDimension, TextureFormat},
+    },
 };
 use bevy_mod_mesh_tools::{mesh_append, mesh_empty_default, mesh_with_transform};
 
@@ -30,12 +33,12 @@ fn setup(
     });
 
     let shapes = [
-        shape::Cube::default().into(),
-        shape::Box::default().into(),
-        shape::Capsule::default().into(),
-        shape::Torus::default().into(),
-        shape::Icosphere::default().try_into().unwrap(),
-        shape::UVSphere::default().into(),
+        Cuboid::default().mesh().into(),
+        Capsule3d::default().mesh().into(),
+        Torus::default().mesh().into(),
+        Cylinder::default().mesh().into(),
+        Sphere::default().mesh().ico(5).unwrap(),
+        Sphere::default().mesh().uv(32, 18),
     ];
 
     let mut combined_mesh = mesh_empty_default();
@@ -59,7 +62,7 @@ fn setup(
 
     commands.spawn(PointLightBundle {
         point_light: PointLight {
-            intensity: 9000.0,
+            intensity: 9000.0 * 1000.0,
             range: 100.,
             shadows_enabled: true,
             ..default()
@@ -70,14 +73,8 @@ fn setup(
 
     // ground plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(
-            shape::Plane {
-                size: 50.,
-                subdivisions: 0,
-            }
-            .into(),
-        ),
-        material: materials.add(Color::SILVER.into()),
+        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
+        material: materials.add(Color::SILVER),
         ..default()
     });
 
@@ -112,5 +109,6 @@ fn uv_debug_texture() -> Image {
         TextureDimension::D2,
         &texture_data,
         TextureFormat::Rgba8UnormSrgb,
+        RenderAssetUsages::default(),
     )
 }

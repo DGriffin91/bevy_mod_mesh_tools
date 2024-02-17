@@ -4,8 +4,8 @@ use bevy::prelude::*;
 use bevy_mod_mesh_tools::{mesh_append, mesh_with_transform};
 
 fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
-    let cube_mesh = shape::Cube::default().into();
-    let sphere_mesh = shape::UVSphere::default().into();
+    let cube_mesh = Cuboid::default().mesh();
+    let sphere_mesh = Sphere::default().mesh().uv(32, 18);
 
     let mut mesh_a = mesh_with_transform(&cube_mesh, &Transform::from_xyz(-2.0, 0.0, 0.0)).unwrap();
     let mesh_b = mesh_with_transform(&sphere_mesh, &Transform::from_xyz(2.0, 0.0, 0.0)).unwrap();

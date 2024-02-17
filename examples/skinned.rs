@@ -6,9 +6,12 @@ use std::f32::consts::PI;
 use bevy::{
     pbr::wireframe::{Wireframe, WireframePlugin},
     prelude::*,
-    render::mesh::{
-        skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
-        Indices, PrimitiveTopology, VertexAttributeValues,
+    render::{
+        mesh::{
+            skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
+            Indices, PrimitiveTopology, VertexAttributeValues,
+        },
+        render_asset::RenderAssetUsages,
     },
 };
 use bevy_mod_mesh_tools::{mesh_positions, mesh_with_skinned_transform};
@@ -48,7 +51,10 @@ fn setup(
         ]));
 
     // Create a mesh
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    );
     // Set mesh vertex positions
     mesh.insert_attribute(
         Mesh::ATTRIBUTE_POSITION,
@@ -110,9 +116,9 @@ fn setup(
     );
     // Tell bevy to construct triangles from a list of vertex indices,
     //  where each 3 vertex indices form an triangle.
-    mesh.set_indices(Some(Indices::U16(vec![
+    mesh.insert_indices(Indices::U16(vec![
         0, 1, 3, 0, 3, 2, 2, 3, 5, 2, 5, 4, 4, 5, 7, 4, 7, 6, 6, 7, 9, 6, 9, 8,
-    ])));
+    ]));
 
     let mesh_h = meshes.add(mesh);
 
@@ -132,7 +138,7 @@ fn setup(
     commands
         .spawn(PbrBundle {
             mesh: mesh_h.clone(),
-            material: materials.add(Color::rgb(0.5, 0.5, 0.5).into()),
+            material: materials.add(Color::rgb(0.5, 0.5, 0.5)),
             ..default()
         })
         .insert(SkinnedMesh {
@@ -144,7 +150,7 @@ fn setup(
     for _ in 0..10 {
         commands
             .spawn(PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube { size: 0.1 })),
+                mesh: meshes.add(Cuboid::new(0.1, 0.1, 0.1)),
                 ..default()
             })
             .insert(DebugVertex);
@@ -153,8 +159,8 @@ fn setup(
     // AABB debug cube
     commands
         .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.0).into()),
+            mesh: meshes.add(Cuboid::default()),
+            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.0)),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         })

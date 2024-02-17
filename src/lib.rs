@@ -8,6 +8,7 @@ use bevy::{
             skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
             Indices, MeshVertexAttributeId, VertexAttributeValues,
         },
+        render_asset::RenderAssetUsages,
         render_resource::PrimitiveTopology,
     },
 };
@@ -432,11 +433,14 @@ pub fn mesh_append(dest_mesh: &mut Mesh, src_mesh: &Mesh) -> Result<(), crate::M
 }
 
 pub fn mesh_empty_default() -> Mesh {
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    );
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, Vec::<[f32; 3]>::new());
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, Vec::<[f32; 3]>::new());
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, Vec::<[f32; 2]>::new());
-    mesh.set_indices(Some(Indices::U32(Vec::new())));
+    mesh.insert_indices(Indices::U32(Vec::new()));
     mesh
 }
 
