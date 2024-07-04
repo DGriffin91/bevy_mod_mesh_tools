@@ -12,7 +12,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut debug_material: ResMut<Assets<DebugNormalsMaterial>>,
 ) {
-    let cube_mesh = Cuboid::default().mesh();
+    let cube_mesh = Cuboid::default().mesh().into();
     let sphere_mesh = Sphere::default().mesh().uv(32, 18);
 
     let mut mesh_a = mesh_with_transform(&cube_mesh, &Transform::from_xyz(-2.0, 0.0, 0.0)).unwrap();

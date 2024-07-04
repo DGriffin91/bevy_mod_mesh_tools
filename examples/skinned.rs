@@ -138,7 +138,7 @@ fn setup(
     commands
         .spawn(PbrBundle {
             mesh: mesh_h.clone(),
-            material: materials.add(Color::rgb(0.5, 0.5, 0.5)),
+            material: materials.add(Color::srgb(0.5, 0.5, 0.5)),
             ..default()
         })
         .insert(SkinnedMesh {
@@ -160,7 +160,7 @@ fn setup(
     commands
         .spawn(PbrBundle {
             mesh: meshes.add(Cuboid::default()),
-            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.0)),
+            material: materials.add(Color::srgba(0.0, 0.0, 0.0, 0.0)),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         })
