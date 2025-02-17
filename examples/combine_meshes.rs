@@ -54,34 +54,31 @@ fn setup(
         mesh_append(&mut combined_mesh, &mesh).unwrap();
     }
 
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(combined_mesh),
-        material: debug_material,
-        ..default()
-    });
+    commands.spawn((
+        Mesh3d(meshes.add(combined_mesh)),
+        MeshMaterial3d(debug_material),
+    ));
 
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
+    commands.spawn((
+        PointLight {
             intensity: 9000.0 * 1000.0,
             range: 100.,
             shadows_enabled: true,
             ..default()
         },
-        transform: Transform::from_xyz(8.0, 16.0, 8.0),
-        ..default()
-    });
+        Transform::from_xyz(8.0, 16.0, 8.0),
+    ));
 
     // ground plane
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Plane3d::default().mesh().size(50.0, 50.0)),
-        material: materials.add(Color::srgb(0.5, 0.5, 0.5)),
-        ..default()
-    });
+    commands.spawn((
+        Mesh3d(meshes.add(Plane3d::default().mesh().size(50.0, 50.0))),
+        MeshMaterial3d(materials.add(Color::srgb(0.5, 0.5, 0.5))),
+    ));
 
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 6., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-        ..default()
-    });
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_xyz(0.0, 6., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
+    ));
 }
 
 /// Creates a colorful test pattern

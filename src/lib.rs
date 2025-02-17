@@ -265,8 +265,8 @@ pub fn mesh_append(dest_mesh: &mut Mesh, src_mesh: &Mesh) -> Result<(), crate::M
     let dest_mesh_count = dest_mesh.count_vertices();
 
     for (attr, _) in dest_mesh.attributes() {
-        if src_mesh.attribute(attr).is_none() {
-            return Err(MeshAppendError::AttributeNotFound(attr));
+        if src_mesh.attribute(*attr).is_none() {
+            return Err(MeshAppendError::AttributeNotFound((*attr).into()));
         }
     }
 
@@ -288,142 +288,142 @@ pub fn mesh_append(dest_mesh: &mut Mesh, src_mesh: &Mesh) -> Result<(), crate::M
     for (attr, vals) in dest_mesh.attributes_mut() {
         match vals {
             VertexAttributeValues::Float32(v) => {
-                if let Some(VertexAttributeValues::Float32(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Float32(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint32(v) => {
-                if let Some(VertexAttributeValues::Sint32(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint32(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint32(v) => {
-                if let Some(VertexAttributeValues::Uint32(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint32(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Float32x2(v) => {
-                if let Some(VertexAttributeValues::Float32x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Float32x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint32x2(v) => {
-                if let Some(VertexAttributeValues::Sint32x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint32x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint32x2(v) => {
-                if let Some(VertexAttributeValues::Uint32x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint32x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Float32x3(v) => {
-                if let Some(VertexAttributeValues::Float32x3(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Float32x3(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint32x3(v) => {
-                if let Some(VertexAttributeValues::Sint32x3(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint32x3(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint32x3(v) => {
-                if let Some(VertexAttributeValues::Uint32x3(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint32x3(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Float32x4(v) => {
-                if let Some(VertexAttributeValues::Float32x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Float32x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint32x4(v) => {
-                if let Some(VertexAttributeValues::Sint32x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint32x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint32x4(v) => {
-                if let Some(VertexAttributeValues::Uint32x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint32x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint16x2(v) => {
-                if let Some(VertexAttributeValues::Sint16x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint16x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Snorm16x2(v) => {
-                if let Some(VertexAttributeValues::Snorm16x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Snorm16x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint16x2(v) => {
-                if let Some(VertexAttributeValues::Uint16x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint16x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Unorm16x2(v) => {
-                if let Some(VertexAttributeValues::Unorm16x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Unorm16x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint16x4(v) => {
-                if let Some(VertexAttributeValues::Sint16x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint16x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Snorm16x4(v) => {
-                if let Some(VertexAttributeValues::Snorm16x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Snorm16x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint16x4(v) => {
-                if let Some(VertexAttributeValues::Uint16x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint16x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Unorm16x4(v) => {
-                if let Some(VertexAttributeValues::Unorm16x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Unorm16x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint8x2(v) => {
-                if let Some(VertexAttributeValues::Sint8x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint8x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Snorm8x2(v) => {
-                if let Some(VertexAttributeValues::Snorm8x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Snorm8x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint8x2(v) => {
-                if let Some(VertexAttributeValues::Uint8x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint8x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Unorm8x2(v) => {
-                if let Some(VertexAttributeValues::Unorm8x2(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Unorm8x2(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Sint8x4(v) => {
-                if let Some(VertexAttributeValues::Sint8x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Sint8x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Snorm8x4(v) => {
-                if let Some(VertexAttributeValues::Snorm8x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Snorm8x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Uint8x4(v) => {
-                if let Some(VertexAttributeValues::Uint8x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Uint8x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }
             VertexAttributeValues::Unorm8x4(v) => {
-                if let Some(VertexAttributeValues::Unorm8x4(s)) = src_mesh.attribute(attr) {
+                if let Some(VertexAttributeValues::Unorm8x4(s)) = src_mesh.attribute(*attr) {
                     v.extend(s);
                 }
             }

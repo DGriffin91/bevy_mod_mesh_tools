@@ -9,7 +9,7 @@ use bevy::{
     render::{
         mesh::{
             skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
-            Indices, PrimitiveTopology, VertexAttributeValues,
+            Indices, MeshAabb, PrimitiveTopology, VertexAttributeValues,
         },
         render_asset::RenderAssetUsages,
     },
@@ -18,6 +18,7 @@ use bevy_mod_mesh_tools::{mesh_positions, mesh_with_skinned_transform};
 
 fn main() {
     App::new()
+        .insert_resource(ClearColor(Color::BLACK))
         .add_plugins((DefaultPlugins, WireframePlugin))
         .add_systems(Startup, setup)
         .add_systems(Update, (joint_animation, skinned_vertex_locations))
@@ -38,10 +39,10 @@ fn setup(
     mut skinned_mesh_inverse_bindposes_assets: ResMut<Assets<SkinnedMeshInverseBindposes>>,
 ) {
     // Create a camera
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
 
     // Create inverse bindpose matrices for a skeleton consists of 2 joints
     let inverse_bindposes =
@@ -123,24 +124,21 @@ fn setup(
     let mesh_h = meshes.add(mesh);
 
     // Create joint entities
-    let joint_0 = commands.spawn(TransformBundle::default()).id();
-    let joint_1 = commands
-        .spawn((AnimatedJoint, TransformBundle::IDENTITY))
-        .id();
+    let joint_0 = commands.spawn(Transform::default()).id();
+    let joint_1 = commands.spawn((AnimatedJoint, Transform::IDENTITY)).id();
 
     // Set joint_1 as a child of joint_0.
-    commands.entity(joint_0).push_children(&[joint_1]);
+    commands.entity(joint_0).add_children(&[joint_1]);
 
     // Each joint in this vector corresponds to each inverse bindpose matrix in `SkinnedMeshInverseBindposes`.
     let joint_entities = vec![joint_0, joint_1];
 
     // Create skinned mesh renderer. Note that its transform doesn't affect the position of the mesh.
     commands
-        .spawn(PbrBundle {
-            mesh: mesh_h.clone(),
-            material: materials.add(Color::srgb(0.5, 0.5, 0.5)),
-            ..default()
-        })
+        .spawn((
+            Mesh3d(mesh_h.clone()),
+            MeshMaterial3d(materials.add(Color::srgb(1.0, 1.0, 1.0))),
+        ))
         .insert(SkinnedMesh {
             inverse_bindposes: inverse_bindposes.clone(),
             joints: joint_entities,
@@ -149,21 +147,20 @@ fn setup(
     // debug cubes for each vertex
     for _ in 0..10 {
         commands
-            .spawn(PbrBundle {
-                mesh: meshes.add(Cuboid::new(0.1, 0.1, 0.1)),
-                ..default()
-            })
+            .spawn((
+                Mesh3d(meshes.add(Cuboid::new(0.1, 0.1, 0.1))),
+                MeshMaterial3d(materials.add(Color::srgb(1.0, 0.0, 1.0))),
+            ))
             .insert(DebugVertex);
     }
 
     // AABB debug cube
     commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Cuboid::default()),
-            material: materials.add(Color::srgba(0.0, 0.0, 0.0, 0.0)),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            ..default()
-        })
+        .spawn((
+            Mesh3d(meshes.add(Cuboid::default())),
+            MeshMaterial3d(materials.add(Color::srgba(0.0, 0.0, 0.0, 0.0))),
+            Transform::from_xyz(0.0, 0.5, 0.0),
+        ))
         .insert(
             // This enables wireframe drawing on this entity
             Wireframe,
@@ -180,13 +177,12 @@ struct AABBDebugCube;
 /// Animate the joint marked with [`AnimatedJoint`] component.
 fn joint_animation(time: Res<Time>, mut query: Query<&mut Transform, With<AnimatedJoint>>) {
     for mut transform in &mut query {
-        transform.rotation =
-            Quat::from_axis_angle(Vec3::Z, 0.5 * PI * time.elapsed_seconds().sin());
+        transform.rotation = Quat::from_axis_angle(Vec3::Z, 0.5 * PI * time.elapsed_secs().sin());
     }
 }
 
 fn skinned_vertex_locations(
-    query: Query<(&Handle<Mesh>, &SkinnedMesh)>,
+    query: Query<(&Mesh3d, &SkinnedMesh)>,
     meshes: Res<Assets<Mesh>>,
     inverse_bindposes: Res<Assets<SkinnedMeshInverseBindposes>>,
     joint_query: Query<&GlobalTransform>,

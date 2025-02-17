@@ -20,29 +20,25 @@ fn setup(
 
     mesh_append(&mut mesh_a, &mesh_b).unwrap();
 
-    commands.spawn((MaterialMeshBundle {
-        mesh: meshes.add(mesh_a.clone()),
-        material: debug_material.add(DebugNormalsMaterial {}),
-        transform: Transform::from_xyz(0.0, 3., 0.0),
-        ..default()
-    },));
+    commands.spawn((
+        Mesh3d(meshes.add(mesh_a.clone())),
+        MeshMaterial3d(debug_material.add(DebugNormalsMaterial {})),
+        Transform::from_xyz(0.0, 3., 0.0),
+    ));
 
     commands.spawn((
-        MaterialMeshBundle {
-            mesh: meshes.add(mesh_a.clone()),
-            material: debug_material.add(DebugNormalsMaterial {}),
-            ..default()
-        },
+        Mesh3d(meshes.add(mesh_a.clone())),
+        MeshMaterial3d(debug_material.add(DebugNormalsMaterial {})),
         MeshUpdate {
             transform: Transform::IDENTITY,
             mesh: mesh_a,
         },
     ));
 
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 6., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-        ..default()
-    });
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_xyz(0.0, 6., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
+    ));
 }
 
 #[derive(Component)]
@@ -53,12 +49,12 @@ struct MeshUpdate {
 
 fn rotate(
     time: Res<Time>,
-    mut mesh_update: Query<(&Handle<Mesh>, &mut MeshUpdate)>,
-    mut rotate_only: Query<&mut Transform, (With<Handle<Mesh>>, Without<MeshUpdate>)>,
+    mut mesh_update: Query<(&Mesh3d, &mut MeshUpdate)>,
+    mut rotate_only: Query<&mut Transform, (With<Mesh3d>, Without<MeshUpdate>)>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let r1 = 1.2 * time.delta_seconds();
-    let r2 = 1.1 * time.delta_seconds();
+    let r1 = 1.2 * time.delta_secs();
+    let r2 = 1.1 * time.delta_secs();
     for (mesh_h, mut m) in &mut mesh_update {
         m.transform.rotate_x(r1);
         m.transform.rotate_z(r2);
