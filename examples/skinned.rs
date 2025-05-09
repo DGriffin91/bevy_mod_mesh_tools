@@ -19,7 +19,7 @@ use bevy_mod_mesh_tools::{mesh_positions, mesh_with_skinned_transform};
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::BLACK))
-        .add_plugins((DefaultPlugins, WireframePlugin))
+        .add_plugins((DefaultPlugins, WireframePlugin::default()))
         .add_systems(Startup, setup)
         .add_systems(Update, (joint_animation, skinned_vertex_locations))
         .run();
