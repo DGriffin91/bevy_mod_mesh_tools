@@ -7,9 +7,11 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.17.1"
-bevy_camera = "0.17.1"
 bevy_mesh = "0.17.1"
 thiserror = "1.0"
+
+[dev-dependencies]
+bevy_camera = "0.17.1"
 
 # Enable optimization in debug mode
 [profile.dev]
