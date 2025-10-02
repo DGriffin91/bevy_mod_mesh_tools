@@ -4,10 +4,10 @@
 use std::f32::consts::PI;
 
 use bevy::{
+    asset::RenderAssetUsages,
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
-use bevy_asset::RenderAssetUsages;
 use bevy_mod_mesh_tools::{mesh_append, mesh_empty_default, mesh_with_transform};
 
 fn main() {

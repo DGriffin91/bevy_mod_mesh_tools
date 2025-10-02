@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.17.1"
-bevy_asset = "0.17.1"
 bevy_camera = "0.17.1"
 bevy_mesh = "0.17.1"
 thiserror = "1.0"

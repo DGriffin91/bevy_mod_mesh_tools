@@ -8,7 +8,7 @@ use bevy::{
     prelude::*,
 };
 
-use bevy_asset::RenderAssetUsages;
+use bevy::asset::RenderAssetUsages;
 use bevy_camera::primitives::MeshAabb;
 use bevy_mesh::skinning::{SkinnedMesh, SkinnedMeshInverseBindposes};
 use bevy_mesh::{Indices, PrimitiveTopology, VertexAttributeValues};
