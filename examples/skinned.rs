@@ -6,14 +6,12 @@ use std::f32::consts::PI;
 use bevy::{
     pbr::wireframe::{Wireframe, WireframePlugin},
     prelude::*,
-    render::{
-        mesh::{
-            skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
-            Indices, MeshAabb, PrimitiveTopology, VertexAttributeValues,
-        },
-        render_asset::RenderAssetUsages,
-    },
 };
+
+use bevy_asset::RenderAssetUsages;
+use bevy_camera::primitives::MeshAabb;
+use bevy_mesh::skinning::{SkinnedMesh, SkinnedMeshInverseBindposes};
+use bevy_mesh::{Indices, PrimitiveTopology, VertexAttributeValues};
 use bevy_mod_mesh_tools::{mesh_positions, mesh_with_skinned_transform};
 
 fn main() {

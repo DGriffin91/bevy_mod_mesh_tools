@@ -6,7 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = "0.16"
+bevy = "0.17.1"
+bevy_asset = "0.17.1"
+bevy_camera = "0.17.1"
+bevy_mesh = "0.17.1"
 thiserror = "1.0"
 
 # Enable optimization in debug mode

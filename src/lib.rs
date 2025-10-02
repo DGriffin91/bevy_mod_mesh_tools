@@ -1,17 +1,17 @@
 use std::slice::{Iter, IterMut};
 
+use bevy::asset::RenderAssetUsages;
 use bevy::{
-    math::Vec4Swizzles,
+    math::{Mat3, Mat4},
+    mesh::*,
     prelude::*,
-    render::{
-        mesh::{
-            skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
-            Indices, MeshVertexAttributeId, VertexAttributeValues,
-        },
-        render_asset::RenderAssetUsages,
-        render_resource::PrimitiveTopology,
-    },
+    render::render_resource::PrimitiveTopology,
 };
+use bevy_mesh::skinning::SkinnedMesh;
+use bevy_mesh::skinning::SkinnedMeshInverseBindposes;
+use bevy_mesh::Indices;
+use bevy_mesh::MeshVertexAttributeId;
+use bevy_mesh::VertexAttributeValues;
 use thiserror::Error;
 
 #[inline]
@@ -22,7 +22,7 @@ pub fn mesh_len(mesh: &Mesh) -> usize {
     }
 }
 
-pub fn mesh_joint_weights(mesh: &Mesh) -> Iter<Vec4> {
+pub fn mesh_joint_weights(mesh: &Mesh) -> Iter<'_, Vec4> {
     match mesh.attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT) {
         Some(VertexAttributeValues::Float32x4(v)) => unsafe {
             std::mem::transmute::<Iter<[f32; 4]>, Iter<Vec4>>(v.iter())
@@ -31,14 +31,14 @@ pub fn mesh_joint_weights(mesh: &Mesh) -> Iter<Vec4> {
     }
 }
 
-pub fn mesh_joint_indices(mesh: &Mesh) -> Iter<[u16; 4]> {
+pub fn mesh_joint_indices(mesh: &Mesh) -> Iter<'_, [u16; 4]> {
     match mesh.attribute(Mesh::ATTRIBUTE_JOINT_INDEX) {
         Some(VertexAttributeValues::Uint16x4(indices)) => indices.iter(),
         _ => [].iter(),
     }
 }
 
-pub fn mesh_positions(mesh: &Mesh) -> Iter<Vec3> {
+pub fn mesh_positions(mesh: &Mesh) -> Iter<'_, Vec3> {
     match mesh.attribute(Mesh::ATTRIBUTE_POSITION) {
         Some(VertexAttributeValues::Float32x3(v)) => unsafe {
             std::mem::transmute::<Iter<[f32; 3]>, Iter<Vec3>>(v.iter())
@@ -47,7 +47,7 @@ pub fn mesh_positions(mesh: &Mesh) -> Iter<Vec3> {
     }
 }
 
-pub fn mesh_positions_mut(mesh: &mut Mesh) -> IterMut<Vec3> {
+pub fn mesh_positions_mut(mesh: &mut Mesh) -> IterMut<'_, Vec3> {
     match mesh.attribute_mut(Mesh::ATTRIBUTE_POSITION) {
         Some(VertexAttributeValues::Float32x3(v)) => unsafe {
             std::mem::transmute::<IterMut<[f32; 3]>, IterMut<Vec3>>(v.iter_mut())
@@ -56,7 +56,7 @@ pub fn mesh_positions_mut(mesh: &mut Mesh) -> IterMut<Vec3> {
     }
 }
 
-pub fn mesh_normals(mesh: &Mesh) -> Iter<Vec3> {
+pub fn mesh_normals(mesh: &Mesh) -> Iter<'_, Vec3> {
     match mesh.attribute(Mesh::ATTRIBUTE_NORMAL) {
         Some(VertexAttributeValues::Float32x3(v)) => unsafe {
             std::mem::transmute::<Iter<[f32; 3]>, Iter<Vec3>>(v.iter())
@@ -65,7 +65,7 @@ pub fn mesh_normals(mesh: &Mesh) -> Iter<Vec3> {
     }
 }
 
-pub fn mesh_normals_mut(mesh: &mut Mesh) -> IterMut<Vec3> {
+pub fn mesh_normals_mut(mesh: &mut Mesh) -> IterMut<'_, Vec3> {
     match mesh.attribute_mut(Mesh::ATTRIBUTE_NORMAL) {
         Some(VertexAttributeValues::Float32x3(v)) => unsafe {
             std::mem::transmute::<IterMut<[f32; 3]>, IterMut<Vec3>>(v.iter_mut())
@@ -74,7 +74,7 @@ pub fn mesh_normals_mut(mesh: &mut Mesh) -> IterMut<Vec3> {
     }
 }
 
-pub fn mesh_tangents(mesh: &Mesh) -> Iter<Vec4> {
+pub fn mesh_tangents(mesh: &Mesh) -> Iter<'_, Vec4> {
     match mesh.attribute(Mesh::ATTRIBUTE_TANGENT) {
         Some(VertexAttributeValues::Float32x4(v)) => unsafe {
             std::mem::transmute::<Iter<[f32; 4]>, Iter<Vec4>>(v.iter())
@@ -83,7 +83,7 @@ pub fn mesh_tangents(mesh: &Mesh) -> Iter<Vec4> {
     }
 }
 
-pub fn mesh_tangents_mut(mesh: &mut Mesh) -> IterMut<Vec4> {
+pub fn mesh_tangents_mut(mesh: &mut Mesh) -> IterMut<'_, Vec4> {
     match mesh.attribute_mut(Mesh::ATTRIBUTE_TANGENT) {
         Some(VertexAttributeValues::Float32x4(v)) => unsafe {
             std::mem::transmute::<IterMut<[f32; 4]>, IterMut<Vec4>>(v.iter_mut())
@@ -92,7 +92,7 @@ pub fn mesh_tangents_mut(mesh: &mut Mesh) -> IterMut<Vec4> {
     }
 }
 
-pub fn mesh_uvs(mesh: &Mesh) -> Iter<Vec2> {
+pub fn mesh_uvs(mesh: &Mesh) -> Iter<'_, Vec2> {
     match mesh.attribute(Mesh::ATTRIBUTE_UV_0) {
         Some(VertexAttributeValues::Float32x2(v)) => unsafe {
             std::mem::transmute::<Iter<[f32; 2]>, Iter<Vec2>>(v.iter())
@@ -101,7 +101,7 @@ pub fn mesh_uvs(mesh: &Mesh) -> Iter<Vec2> {
     }
 }
 
-pub fn mesh_uvs_mut(mesh: &mut Mesh) -> IterMut<Vec2> {
+pub fn mesh_uvs_mut(mesh: &mut Mesh) -> IterMut<'_, Vec2> {
     match mesh.attribute_mut(Mesh::ATTRIBUTE_UV_0) {
         Some(VertexAttributeValues::Float32x2(v)) => unsafe {
             std::mem::transmute::<IterMut<[f32; 2]>, IterMut<Vec2>>(v.iter_mut())
@@ -113,7 +113,7 @@ pub fn mesh_uvs_mut(mesh: &mut Mesh) -> IterMut<Vec2> {
 pub fn mesh_with_transform(mesh: &Mesh, transform: &Transform) -> Option<Mesh> {
     let mut mesh = mesh.clone();
 
-    let model = transform.compute_matrix();
+    let model = transform.to_matrix();
 
     for p in mesh_positions_mut(&mut mesh) {
         *p = model.transform_point3(*p);
@@ -273,12 +273,12 @@ pub fn mesh_append(dest_mesh: &mut Mesh, src_mesh: &Mesh) -> Result<(), crate::M
     let src_indices = src_mesh.indices().unwrap().iter();
 
     match dest_mesh.indices_mut().unwrap() {
-        bevy::render::mesh::Indices::U16(dv) => {
+        Indices::U16(dv) => {
             for sv in src_indices {
                 dv.push(sv as u16 + dest_mesh_count as u16)
             }
         }
-        bevy::render::mesh::Indices::U32(dv) => {
+        Indices::U32(dv) => {
             for sv in src_indices {
                 dv.push(sv as u32 + dest_mesh_count as u32)
             }
