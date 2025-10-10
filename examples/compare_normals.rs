@@ -1,9 +1,7 @@
 // Compare normals between using mesh_with_transform vs bevy's gpu implementation
 
 use bevy::{
-    prelude::*,
-    reflect::TypePath,
-    render::render_resource::{AsBindGroup, ShaderRef},
+    prelude::*, reflect::TypePath, render::render_resource::AsBindGroup, shader::ShaderRef,
 };
 use bevy_mod_mesh_tools::{mesh_append, mesh_with_transform};
 
